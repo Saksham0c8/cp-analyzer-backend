@@ -13,6 +13,7 @@ public interface SubmissionRepository
     List<Submission> findByUser(User user);
 
 
+
     long countByUser(User user);
 
     long countByUserAndVerdict(User user, String verdict);
@@ -85,5 +86,9 @@ WHERE s.user = :user
 ORDER BY DATE(s.submissionTime)
 """)
     List<java.sql.Date> findActiveDates(User user);
+    boolean existsByUserAndProblem(
+            User user,
+            com.saksham.cp_analyzer.entity.Problem problem
+    );
 
 }

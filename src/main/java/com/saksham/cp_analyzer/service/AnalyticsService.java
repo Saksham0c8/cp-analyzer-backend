@@ -191,6 +191,13 @@ public class AnalyticsService {
                     ((Number) row[2]).longValue();
 
             double strengthAccuracy = 0;
+
+            if (attempted > 0) {
+
+                strengthAccuracy =
+                        ((double) solved / attempted) * 100;
+            }
+
             if (strengthAccuracy > strongestAccuracy) {
 
                 strongestAccuracy =
@@ -207,13 +214,6 @@ public class AnalyticsService {
 
                 weakestTopic =
                         topic;
-            }
-
-            if (attempted > 0) {
-
-                strengthAccuracy =
-                        ((double) solved / attempted)
-                                * 100;
             }
 
             topicStrength.put(

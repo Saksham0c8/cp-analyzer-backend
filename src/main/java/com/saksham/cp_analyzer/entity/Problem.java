@@ -87,4 +87,12 @@ public class Problem {
     public void setTags(List<Tag> tags) {
         this.tags = tags;
     }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
 }

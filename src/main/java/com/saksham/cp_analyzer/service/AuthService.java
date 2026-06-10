@@ -12,9 +12,7 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
-
     private final JwtService jwtService;
 
     public AuthService(
@@ -27,79 +25,53 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-    public String register(
-            RegisterRequestDTO request
-    ) {
+    public AuthResponseDTO register(RegisterRequestDTO request) {
 
-        if (
-                userRepository
-                        .findByUsername(
-                                request.getUsername()
-                        )
-                        .isPresent()
-        ) {
-            throw new RuntimeException(
-                    "Username already exists"
-            );
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new RuntimeException("Username already exists");
         }
 
         User user = new User();
 
-        user.setName(
-                request.getName()
-        );
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setUsername(request.getUsername());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        user.setEmail(
-                request.getEmail()
-        );
+        User savedUser = userRepository.save(user);
 
-        user.setUsername(
-                request.getUsername()
-        );
+        String token = jwtService.generateToken(savedUser.getUsername());
 
-        user.setPassword(
-                passwordEncoder.encode(
-                        request.getPassword()
-                )
-        );
-
-        userRepository.save(user);
-
-        return jwtService.generateToken(
-                user.getUsername()
+        return new AuthResponseDTO(
+                token,
+                savedUser.getId(),
+                savedUser.getUsername()
         );
     }
 
-    public String login(
-            LoginRequestDTO request
-    ) {
+    public AuthResponseDTO login(LoginRequestDTO request) {
 
-        User user =
-                userRepository
-                        .findByUsername(
-                                request.getUsername()
-                        )
-                        .orElseThrow(
-                                () ->
-                                        new RuntimeException(
-                                                "User not found"
-                                        )
-                        );
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new RuntimeException("Invalid username or password"));
 
-        boolean matches =
-                passwordEncoder.matches(
-                        request.getPassword(),
-                        user.getPassword()
-                );
+        boolean matches = passwordEncoder.matches(
+                request.getPassword(),
+                user.getPassword()
+        );
 
         if (!matches) {
-
-            throw new RuntimeException(
-                    "Invalid password"
-            );
+            throw new RuntimeException("Invalid username or password");
         }
 
-        return jwtService.generateToken(
+        String token = jwtService.generateToken(user.getUsername());
+
+        return new AuthResponseDTO(
+                token,
+                user.getId(),
                 user.getUsername()
         );
     }

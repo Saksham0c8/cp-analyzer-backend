@@ -4,6 +4,7 @@ public class DashboardResponseDTO {
 
     private AnalyticsResponseDTO analytics;
 
+    private Object recentSubmissions;
     private LeetCodeProfileDTO leetcode;
     private String summary;
 
@@ -58,5 +59,13 @@ public class DashboardResponseDTO {
     }
     public void setSummary(String summary) {
         this.summary = summary;
+    }
+
+    public Object getRecentSubmissions() {
+        return recentSubmissions;
+    }
+
+    public void setRecentSubmissions(Object recentSubmissions) {
+        this.recentSubmissions = recentSubmissions;
     }
 }

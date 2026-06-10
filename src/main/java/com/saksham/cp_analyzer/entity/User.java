@@ -1,7 +1,7 @@
 package com.saksham.cp_analyzer.entity;
 
 import jakarta.persistence.*;
-
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +12,9 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @JsonManagedReference
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<PlatformAccount> platformAccounts = new ArrayList<>();
 
     @Column(nullable = false)
     private String name;
@@ -25,6 +28,11 @@ public class User {
     private String password;
 
     private Integer rating;
+    private Integer easySolved;
+
+    private Integer mediumSolved;
+
+    private Integer hardSolved;
 
     private Integer totalSolved;
 
@@ -43,7 +51,10 @@ public class User {
             String username,
             String password,
             Integer rating,
-            Integer totalSolved
+            Integer totalSolved,
+            Integer easySolved,
+            Integer mediumSolved,
+            Integer hardSolved
     ) {
         this.id = id;
         this.name = name;
@@ -52,6 +63,9 @@ public class User {
         this.password = password;
         this.rating = rating;
         this.totalSolved = totalSolved;
+        this.easySolved = easySolved;
+        this.mediumSolved = mediumSolved;
+        this.hardSolved = hardSolved;
     }
 
     // Getters and Setters
@@ -118,5 +132,36 @@ public class User {
 
     public void setSubmissions(List<Submission> submissions) {
         this.submissions = submissions;
+    }
+
+    public List<PlatformAccount> getPlatformAccounts() {
+        return platformAccounts;
+    }
+
+    public void setPlatformAccounts(List<PlatformAccount> platformAccounts) {
+        this.platformAccounts = platformAccounts;
+    }
+    public Integer getEasySolved() {
+        return easySolved;
+    }
+
+    public void setEasySolved(Integer easySolved) {
+        this.easySolved = easySolved;
+    }
+
+    public Integer getMediumSolved() {
+        return mediumSolved;
+    }
+
+    public void setMediumSolved(Integer mediumSolved) {
+        this.mediumSolved = mediumSolved;
+    }
+
+    public Integer getHardSolved() {
+        return hardSolved;
+    }
+
+    public void setHardSolved(Integer hardSolved) {
+        this.hardSolved = hardSolved;
     }
 }

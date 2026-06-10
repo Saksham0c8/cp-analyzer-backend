@@ -11,6 +11,67 @@ import java.util.Map;
 @Service
 public class LeetCodeService {
 
+    public Object getRecentSubmissions(String username) {
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        String url = "https://leetcode.com/graphql";
+
+        String requestBody =
+                "{"
+                        + "\"query\":\"query recentAcSubmissions($username: String!) { "
+                        + "recentAcSubmissionList(username: $username) { "
+                        + "title "
+                        + "titleSlug "
+                        + "timestamp "
+                        + "} "
+                        + "}\","
+                        + "\"variables\":{\"username\":\"" + username + "\"}"
+                        + "}";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> entity =
+                new HttpEntity<>(requestBody, headers);
+
+        return restTemplate.postForObject(
+                url,
+                entity,
+                Object.class
+        );
+    }
+
+    public Object getProblemDetails(String titleSlug) {
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        String url = "https://leetcode.com/graphql";
+
+        String requestBody =
+                "{"
+                        + "\"query\":\"query questionData($titleSlug: String!) { "
+                        + "question(titleSlug: $titleSlug) { "
+                        + "difficulty "
+                        + "topicTags { name } "
+                        + "} "
+                        + "}\","
+                        + "\"variables\":{\"titleSlug\":\"" + titleSlug + "\"}"
+                        + "}";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> entity =
+                new HttpEntity<>(requestBody, headers);
+
+        return restTemplate.postForObject(
+                url,
+                entity,
+                Object.class
+        );
+    }
+
     public LeetCodeProfileDTO getProfile(String username) {
 
         RestTemplate restTemplate = new RestTemplate();

@@ -1,133 +1,97 @@
 package com.saksham.cp_analyzer.service;
 
 import com.saksham.cp_analyzer.dto.*;
-
 import org.springframework.stereotype.Service;
 
 @Service
 public class DashboardService {
 
     private final AnalyticsService analyticsService;
-
     private final LeetCodeService leetCodeService;
-
-    private final CodeforcesService codeforcesService;
-
     private final RecommendationService recommendationService;
 
     public DashboardService(
             AnalyticsService analyticsService,
             LeetCodeService leetCodeService,
-            CodeforcesService codeforcesService,
             RecommendationService recommendationService
     ) {
         this.analyticsService = analyticsService;
         this.leetCodeService = leetCodeService;
-        this.codeforcesService = codeforcesService;
         this.recommendationService = recommendationService;
     }
 
     public DashboardResponseDTO getDashboard(
-            String username,
-            String codeforcesHandle
+            String appUsername,
+            String leetcodeUsername
     ) {
 
         AnalyticsResponseDTO analytics =
-                analyticsService.getUserAnalytics(
-                        username
-                );
+                analyticsService.getUserAnalytics(appUsername);
 
         LeetCodeProfileDTO leetcode =
-                leetCodeService.getProfile(
-                        username
-                );
+                leetCodeService.getProfile(leetcodeUsername);
 
-        CodeforcesProfileDTO codeforces =
-                codeforcesService.getProfile(
-                        codeforcesHandle
+        Object recentSubmissions =
+                leetCodeService.getRecentSubmissions(
+                        leetcodeUsername
                 );
 
         RecommendationResponseDTO recommendations =
-                recommendationService.recommendProblems(
-                        username
-                );
-        String summary =
-                generateSummary(
-                        analytics
-                );
+                recommendationService.recommendProblems(appUsername);
 
         DashboardResponseDTO response =
                 new DashboardResponseDTO();
 
-        response.setAnalytics(
-                analytics
-        );
+        response.setAnalytics(analytics);
+        response.setLeetcode(leetcode);
+        response.setCodeforces(null);
+        response.setRecommendations(recommendations);
+        response.setSummary(generateSummary(analytics));
+        response.setRecentSubmissions(recentSubmissions);
 
-        response.setLeetcode(
-                leetcode
-        );
-
-        response.setCodeforces(
-                codeforces
-        );
-
-        response.setRecommendations(
-                recommendations
-        );
-        response.setSummary(summary);
         return response;
     }
-    private String generateSummary(
-            AnalyticsResponseDTO analytics
-    ) {
 
-        String strongest =
-                analytics.getStrongestTopic();
+    private String generateSummary(AnalyticsResponseDTO analytics) {
 
-        String weakest =
-                analytics.getWeakestTopic();
+        String strongest = analytics.getStrongestTopic();
+        String weakest = analytics.getWeakestTopic();
+        Double consistency = analytics.getConsistencyScore();
+        Double accuracy = analytics.getAccuracy();
+        String skillLevel = analytics.getSkillLevel();
 
-        Double consistency =
-                analytics.getConsistencyScore();
+        StringBuilder summary = new StringBuilder();
 
-        StringBuilder summary =
-                new StringBuilder();
-
-        if (strongest != null) {
-
-            summary.append(
-                    "Strong in "
-                            + strongest
-                            + ". "
-            );
+        if (skillLevel != null) {
+            summary.append("You are currently at ")
+                    .append(skillLevel)
+                    .append(" level. ");
         }
 
-        if (weakest != null) {
-
-            summary.append(
-                    "Needs improvement in "
-                            + weakest
-                            + ". "
-            );
+        if (accuracy != null) {
+            summary.append("Your accuracy is ")
+                    .append(String.format("%.1f", accuracy))
+                    .append("%. ");
         }
 
-        if (consistency < 30) {
+        if (strongest != null && !"N/A".equals(strongest)) {
+            summary.append("Your strongest topic is ")
+                    .append(strongest)
+                    .append(". ");
+        }
 
-            summary.append(
-                    "Consistency is low. Practice daily."
-            );
+        if (weakest != null && !"N/A".equals(weakest)) {
+            summary.append("Focus more on ")
+                    .append(weakest)
+                    .append(". ");
+        }
 
+        if (consistency == null || consistency < 30) {
+            summary.append("Your consistency is low, so try solving daily.");
         } else if (consistency < 70) {
-
-            summary.append(
-                    "Consistency is improving."
-            );
-
+            summary.append("Your consistency is improving.");
         } else {
-
-            summary.append(
-                    "Excellent consistency."
-            );
+            summary.append("Excellent consistency. Keep the streak going.");
         }
 
         return summary.toString();
