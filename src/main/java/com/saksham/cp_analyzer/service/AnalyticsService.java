@@ -40,19 +40,8 @@ public class AnalyticsService {
         Long activeDays =
                 submissionRepository.countActiveDays(user);
 
-        List<java.sql.Date> sqlDates =
-                submissionRepository.findActiveDates(user);
-
         List<LocalDate> activeDates =
-                new ArrayList<>();
-
-        for (java.sql.Date date : sqlDates) {
-
-            activeDates.add(
-                    date.toLocalDate()
-            );
-        }
-
+                submissionRepository.findActiveDates(user);
         Long last7Days =
                 submissionRepository.countSubmissionsAfter(
                         user,

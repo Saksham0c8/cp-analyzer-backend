@@ -4,6 +4,8 @@ import com.saksham.cp_analyzer.entity.Submission;
 import com.saksham.cp_analyzer.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import java.time.LocalDate;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -85,7 +87,7 @@ FROM Submission s
 WHERE s.user = :user
 ORDER BY DATE(s.submissionTime)
 """)
-    List<java.sql.Date> findActiveDates(User user);
+    List<LocalDate> findActiveDates(@Param("user") User user);
     boolean existsByUserAndProblem(
             User user,
             com.saksham.cp_analyzer.entity.Problem problem
